@@ -1,5 +1,5 @@
 // 咩记 service worker：离线可用，网页更新后自动换新
-const CACHE = 'mieji-v2';
+const CACHE = 'mieji-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-512-round.png', './apple-touch-icon.png', './favicon.png'];
 
 self.addEventListener('install', e => {

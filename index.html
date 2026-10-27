@@ -282,6 +282,36 @@ svg{display:block}
 .about{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:12.5px;color:var(--ink3);line-height:1.6}
 .about img{width:52px;height:52px;border-radius:13px;flex:none;box-shadow:var(--shadow)}
 
+/* categories */
+.sheet.stack{z-index:55}
+.cat-grid{display:flex;flex-wrap:wrap;gap:10px}
+.cat-chip{padding:10px 16px;border-radius:99px;font-weight:700;font-size:14px;color:var(--c);background:rgba(127,127,127,.1);background:color-mix(in srgb,var(--c) 14%,transparent);transition:transform .2s,background .2s,color .2s;animation:rise .35s cubic-bezier(.2,.9,.3,1) backwards}
+.cat-chip:active{transform:scale(.93)}
+.cat-chip.on{background:var(--c);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--c) 40%,transparent)}
+.cat-chip.none{--c:var(--ink2)}
+.cat-list{list-style:none;margin:0;padding:0}
+.cat-row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);animation:rise .35s cubic-bezier(.2,.9,.3,1) backwards}
+.cat-dot{flex:none;width:30px;height:30px;margin-top:2px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 3px rgba(255,255,255,.55);transition:transform .2s}
+.cat-dot:active{transform:scale(.88)}
+.cat-fields{flex:1;min-width:0}
+.cat-name{width:100%;border:0;outline:0;background:transparent;font-size:16px;font-weight:700;color:var(--c);padding:4px 0}
+.cat-kw{width:100%;border:0;outline:0;background:var(--paper2);border-radius:10px;padding:7px 10px;font-size:12.5px;color:var(--ink2);margin-top:4px}
+.cat-kw::placeholder,.cat-name::placeholder{color:var(--ink3);font-weight:500}
+.pal{display:none;flex-wrap:wrap;gap:8px;margin-top:10px}
+.cat-row.palette .pal{display:flex}
+.pal button{width:24px;height:24px;border-radius:50%;background:var(--c);transition:transform .2s}
+.pal button.on{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--c)}
+.cat-ops{display:flex;flex-direction:column;gap:2px;flex:none}
+.cat-ops button{width:30px;height:30px;border-radius:9px;color:var(--ink3);font-size:15px}
+.cat-ops button:hover{background:var(--paper2);color:var(--ink)}
+.cat-ops .rm:hover{color:var(--danger)}
+.add-cat{width:100%;margin-top:12px;padding:12px;border-radius:14px;border:1.5px dashed var(--line);color:var(--green);font-weight:700}
+.filter{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}
+.fchip{font-size:12px;padding:5px 11px;border-radius:99px;background:var(--paper2);color:var(--ink2);font-weight:600;transition:background .25s,color .25s}
+.fchip.on{background:var(--c,var(--green));color:#fff}
+.fchip[style*="--c"]::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:1px}
+.fchip.on::before{background:#fff!important}
+
 /* toast */
 .toast{position:fixed;left:50%;bottom:calc(98px + env(safe-area-inset-bottom));z-index:60;transform:translate(-50%,24px) scale(.96);opacity:0;background:#2F2B26;color:#fff;padding:11px 16px;border-radius:15px;font-size:14px;display:flex;gap:16px;align-items:center;transition:all .35s cubic-bezier(.2,.9,.3,1);pointer-events:none;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.2)}
 .toast span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -428,6 +458,8 @@ svg{display:block}
   <div class="card">
     <div class="grab"></div>
     <h3>设置</h3>
+    <div class="set-row"><div>分类管理<small id="catSummary">新建、改名、换颜色、设自动识别关键词</small></div><button class="link-btn" id="catMgrBtn">编辑</button></div>
+    <div class="set-row"><div>自动分类<small>按关键词给新任务自动选分类</small></div><button class="sw" data-sw="autoCat" aria-label="自动分类"></button></div>
     <div class="set-row"><div>翻页特效</div><div class="seg" data-set="effect"><button data-v="book">翻书</button><button data-v="slide">卡片</button><button data-v="fade">淡入</button></div></div>
     <div class="set-row"><div>外观</div><div class="seg" data-set="theme"><button data-v="auto">跟随系统</button><button data-v="light">浅色</button><button data-v="dark">深色</button></div></div>
     <div class="set-row"><div>音效<small>勾选、翻页时的轻提示音</small></div><button class="sw" data-sw="sound" aria-label="音效"></button></div>
@@ -440,6 +472,29 @@ svg{display:block}
   </div>
 </div>
 
+<!-- category picker -->
+<div class="sheet stack" id="pickSheet">
+  <div class="scrim" data-close></div>
+  <div class="card">
+    <div class="grab"></div>
+    <h3>选择分类</h3>
+    <div class="cat-grid" id="pickGrid"></div>
+    <div class="row-btns"><button class="btn" id="pickManage">管理分类</button></div>
+  </div>
+</div>
+
+<!-- category manager -->
+<div class="sheet stack" id="catSheet">
+  <div class="scrim" data-close></div>
+  <div class="card">
+    <div class="grab"></div>
+    <h3>分类管理<small>点圆点换颜色，关键词用逗号隔开</small></h3>
+    <ul class="cat-list" id="catList"></ul>
+    <button class="add-cat" id="addCat">＋ 新建分类</button>
+    <div class="row-btns"><button class="btn primary" data-close>完成</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span id="toastText"></span><button id="toastAct"></button></div>
 <canvas id="fx"></canvas>
 
@@ -447,22 +502,40 @@ svg{display:block}
 (()=>{'use strict';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const KEY='mieji.v1';
-const TAGS={实验:'#4F8FB0',采购:'#C68A22',文档:'#8573BD',沟通:'#D26A52',其他:'#6F9468'};
-const TAG_KEYS=Object.keys(TAGS);
-const TAG_RULES=[
-  ['沟通',/开会|会议|讨论|联系|打电话|电话|邮件|回复|沟通|汇报|对接|面试|拜访/],
-  ['采购',/采购|下单|订购|买|报价|询价|供应商|发票|报销|耗材|试剂|库存|盘点|到货|快递|合同|付款/],
-  ['文档',/报告|文档|ELN|记录|周报|日报|月报|整理|写|PPT|表格|归档|SOP|总结|材料|审核/i],
-  ['实验',/HPLC|LC|MS|液相|质谱|色谱|进样|样品|测样|称样|制备|纯化|柱|流动相|配液|标品|方法|检测|分析|实验|仪器|维护|上样|梯度|纯度/i]
+const PALETTE=['#4F8FB0','#C68A22','#8573BD','#D26A52','#5E9F56','#D0698F','#3E9C94','#B07A4F','#6E7FA8','#9A9A3A'];
+const DEFAULT_CATS=[
+  {id:'c_comm',name:'沟通',color:'#D26A52',kw:'开会,会议,讨论,联系,打电话,电话,邮件,回复,沟通,汇报,对接,面试,拜访'},
+  {id:'c_buy',name:'采购',color:'#C68A22',kw:'采购,下单,订购,买,报价,询价,供应商,发票,报销,耗材,试剂,库存,盘点,到货,快递,合同,付款'},
+  {id:'c_doc',name:'文档',color:'#8573BD',kw:'报告,文档,ELN,记录,周报,日报,月报,整理,写,PPT,表格,归档,SOP,总结,材料,审核'},
+  {id:'c_lab',name:'实验',color:'#4F8FB0',kw:'HPLC,LC,MS,液相,质谱,色谱,进样,样品,测样,称样,制备,纯化,柱,流动相,配液,标品,方法,检测,分析,实验,仪器,维护,上样,梯度,纯度'}
 ];
 const WK=['日','一','二','三','四','五','六'];
 const MON=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-const defaults={effect:'book',sound:true,theme:'auto',remind:true};
+const defaults={effect:'book',sound:true,theme:'auto',remind:true,autoCat:true};
 
 /* ---------- storage ---------- */
 let db=(()=>{try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&Array.isArray(d.tasks)){d.settings={...defaults,...(d.settings||{})};return d}}catch(e){}return{tasks:[],settings:{...defaults},seen:false}})();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('保存失败：浏览器存储不可用')}};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+/* categories (custom fields) */
+if(!Array.isArray(db.cats)){
+  db.cats=DEFAULT_CATS.map(c=>({...c}));
+  const byName=Object.fromEntries(db.cats.map(c=>[c.name,c.id]));
+  db.tasks.forEach(t=>{t.tag=byName[t.tag]||''});
+  try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
+}
+const catOf=id=>db.cats.find(c=>c.id===id);
+const kwList=c=>String(c.kw||'').split(/[,，、;；\s]+/).map(x=>x.trim()).filter(Boolean);
+function guessTag(s){
+  if(!db.settings.autoCat)return '';
+  const low=String(s).toLowerCase();
+  for(const c of db.cats)if(kwList(c).some(k=>low.includes(k.toLowerCase())))return c.id;
+  return '';
+}
+function catChip(id,attr){
+  const c=catOf(id);
+  return c?`<span class="tag" ${attr} style="--c:${c.color}">${esc(c.name)}</span>`:`<span class="tag muted" ${attr}>+ 分类</span>`;
+}
 
 /* ---------- dates ---------- */
 const pad=n=>String(n).padStart(2,'0');
@@ -484,15 +557,15 @@ const sortUndone=(a,b)=>(b.star|0)-(a.star|0)||(tkey(a)<tkey(b)?-1:tkey(a)>tkey(
 /* ---------- first run ---------- */
 if(!db.seen){
   const now=Date.now();
-  [['点左边的圆圈，划掉完成的事','其他'],['点右下角麦克风，一次说出好几件事','其他'],['左右滑动页面，翻到别的日子看看','其他']]
-    .forEach(([text,tag],i)=>db.tasks.push({id:uid(),text,tag,date:today,done:false,createdAt:now+i,time:null,star:false}));
+  [['点左边的圆圈，划掉完成的事'],['点右下角麦克风，一次说出好几件事'],['点下面的「+ 分类」，自定义你的分类']]
+    .forEach(([text],i)=>db.tasks.push({id:uid(),text,tag:'',date:today,done:false,createdAt:now+i,time:null,star:false}));
   db.seen=true;save();
 }
 
 /* ---------- page rendering ---------- */
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.1 1.1 5.9L12 16.7l-5.3 2.8 1.1-5.9-4.4-4.1 6-.8z"/></svg>';
 function taskHTML(t){
-  const meta=(t.time?`<span class="tm">${t.time}</span>`:'')+`<span class="tag${(t.tag||'其他')==='其他'?' muted':''}" data-act="tag" style="--c:${TAGS[t.tag]||TAGS.其他}">${(t.tag||'其他')==='其他'?'+ 分类':t.tag}</span>`+(t.from?`<span class="from">自 ${md(t.from)} 顺延</span>`:'');
+  const meta=(t.time?`<span class="tm">${t.time}</span>`:'')+catChip(t.tag,'data-act="tag"')+(t.from?`<span class="from">自 ${md(t.from)} 顺延</span>`:'');
   return `<li class="task${t.done?' done':''}" data-id="${t.id}">
 <button class="del" data-act="del">删除</button>
 <div class="task-row">
@@ -511,10 +584,17 @@ function moodText(total,done,date){
   if(done/total>=.5)return `过半啦，还剩 ${left} 件`;
   return `已完成 ${done} 件，还剩 ${left} 件，慢慢来`;
 }
-let doneOpen=false;
+let doneOpen=false,filterCat=null;
+function filterBar(ts){
+  const ids=[...new Set(ts.map(t=>t.tag))].filter(id=>catOf(id));
+  if(ids.length<2&&!filterCat)return '';
+  const ch=(id,label,color)=>`<button class="fchip${filterCat===id?' on':''}" data-act="filter" data-cat="${id??''}" style="${color?'--c:'+color:''}">${label}</button>`;
+  return `<div class="filter">${ch(null,'全部')}${db.cats.filter(c=>ids.includes(c.id)||filterCat===c.id).map(c=>ch(c.id,esc(c.name),c.color)).join('')}${ts.some(t=>!catOf(t.tag))?ch('','未分类'):''}</div>`;
+}
 function pageInner(date){
-  const d=pd(date),ts=on(date),undone=ts.filter(t=>!t.done).sort(sortUndone),done=ts.filter(t=>t.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
-  const total=ts.length,dn=done.length,pct=total?Math.round(dn/total*100):0,r=rel(date);
+  const d=pd(date),ts=on(date),vis=filterCat===null?ts:ts.filter(t=>(catOf(t.tag)?t.tag:'')===filterCat);
+  const undone=vis.filter(t=>!t.done).sort(sortUndone),done=vis.filter(t=>t.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const total=ts.length,dn=ts.filter(t=>t.done).length,pct=total?Math.round(dn/total*100):0,r=rel(date);
   const doy=diffDays(date,`${d.getFullYear()}-01-01`)+1;
   let carry='';
   if(date===today){const od=overdue();if(od.length)carry=`<div class="carry">之前还有 ${od.length} 件没做完的事<button data-act="carry">挪到今天</button></div>`;}
@@ -527,9 +607,10 @@ ${date!==today?`<button class="to-today" data-act="today">回到今天</button>`
 <div class="progress"><div class="track"><div class="fill" style="width:${pct}%"></div><div class="walker${total&&dn===total?' jump':''}" style="left:${pct}%"><svg viewBox="0 0 64 64"><use href="#sheep"/></svg></div></div><div class="pct">${dn}/${total}</div></div>
 <div class="mood">${moodText(total,dn,date)}</div>
 ${carry}
+${filterBar(ts)}
 <ul class="list">${undone.map(taskHTML).join('')}</ul>
 ${empty}
-${dn?`<div class="done-group${doneOpen?' open':''}"><button class="done-head" data-act="done-toggle"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>已完成 ${dn}</button><div class="done-body"><ul class="list">${done.map(taskHTML).join('')}</ul></div></div>`:''}
+${done.length?`<div class="done-group${doneOpen?' open':''}"><button class="done-head" data-act="done-toggle"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>已完成 ${done.length}</button><div class="done-body"><ul class="list">${done.map(taskHTML).join('')}</ul></div></div>`:''}
 <div class="pg-foot">${total?`<button class="ghost" data-act="report">复制日报</button>`:''}</div>
 <div class="pg-num">— ${doy} —</div>`;
 }
@@ -704,7 +785,8 @@ stage.addEventListener('click',e=>{
   switch(a.dataset.act){
     case 'toggle':toggle(id,li);break;
     case 'star':{const t=byId(id);t.star=!t.star;save();a.classList.toggle('on',t.star);if(t.star)sfx('tick');clearTimeout(pendingRefresh);pendingRefresh=setTimeout(refresh,500);break}
-    case 'tag':{const t=byId(id);t.tag=TAG_KEYS[(TAG_KEYS.indexOf(t.tag)+1)%TAG_KEYS.length];save();a.classList.toggle('muted',t.tag==='其他');a.textContent=t.tag==='其他'?'+ 分类':t.tag;a.style.setProperty('--c',TAGS[t.tag]);break}
+    case 'tag':{const t=byId(id);pickCat(t.tag,v=>{t.tag=v;save();refresh()});break}
+    case 'filter':{const v=a.dataset.cat;filterCat=a.classList.contains('on')||v===undefined?null:v;if(a.textContent==='全部')filterCat=null;refresh();break}
     case 'edit':startEdit(li);break;
     case 'del':removeTask(id,li);break;
     case 'today':go(today);break;
@@ -747,7 +829,7 @@ function carry(){
 }
 function addTasks(list){
   const now=Date.now();const dates=new Set();
-  list.forEach((x,i)=>{db.tasks.push({id:uid(),text:x.text,tag:x.tag||guessTag(x.text),date:x.date||cur,time:x.time||null,done:false,star:false,createdAt:now+i});dates.add(x.date||cur)});
+  list.forEach((x,i)=>{db.tasks.push({id:uid(),text:x.text,tag:x.tag??guessTag(x.text),date:x.date||cur,time:x.time||null,done:false,star:false,createdAt:now+i});dates.add(x.date||cur)});
   save();refresh();sfx('add');
   const other=[...dates].filter(d=>d!==cur);
   if(other.length){const d=other[0];toast(`已记到 ${md(d)}${rel(d)?'（'+rel(d)+'）':''}`,'去看看',()=>go(d))}
@@ -778,7 +860,6 @@ function weekdayDate(pre,ch){
   if(/下/.test(pre))return addDays(today,7-tdow+idx);
   let diff=idx-tdow;if(diff<0&&!/这|本/.test(pre))diff+=7;return addDays(today,diff);
 }
-function guessTag(s){for(const[t,re]of TAG_RULES)if(re.test(s))return t;return '其他'}
 function clean(seg){
   seg=seg.replace(/^(我们?|咱们?)?(今天|今日|明天)?(要做的|要干的|要办的|的任务|的待办|的安排|任务|待办|安排)(事情?|事儿)?(有|是|就是|包括)?[：: ]*/,'');
   for(;;){const n=seg.replace(/^(我们?|咱们?|还得|还要|还需要|需要|必须|记得|一定要|要|得|先|再|就是|就)/,'').trim();if(n===seg)break;seg=n}
@@ -808,10 +889,10 @@ function parseTasks(raw,base){
 }
 
 /* ---------- sheets ---------- */
-function openSheet(id){closeRow();$$('.sheet.open').forEach(s=>s.classList.remove('open'));$('#'+id).classList.add('open')}
+function openSheet(id,stack){closeRow();if(!stack)$$('.sheet.open').forEach(s=>s.classList.remove('open'));$('#'+id).classList.add('open')}
 function closeSheet(el){const s=el.closest('.sheet');s.classList.remove('open');if(s.id==='voiceSheet')stopRec(true)}
 document.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(c)closeSheet(c)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){const s=$('.sheet.open');if(s)closeSheet(s.firstElementChild)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const s=$$('.sheet.open').sort((a,b)=>(+getComputedStyle(b).zIndex)-(+getComputedStyle(a).zIndex))[0];if(s)closeSheet(s.firstElementChild)}});
 
 /* ---------- voice ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -860,7 +941,7 @@ function preview(list,raw){
 function renderPreview(){
   $('#pvTitle').textContent=`识别到 ${parsed.length} 件事`;
   $('#pvList').innerHTML=parsed.map((x,i)=>`<li class="pv-item" style="animation-delay:${i*60}ms" data-i="${i}">
-<span class="tag" data-pv="tag" style="--c:${TAGS[x.tag]}">${x.tag}</span>
+${catChip(x.tag,'data-pv="tag"')}
 <input value="${esc(x.text)}" data-pv="text">
 ${x.time?`<span class="tm">${x.time}</span>`:''}${x.date!==cur?`<span class="pv-date">${rel(x.date)||md(x.date)}</span>`:''}
 <button class="pv-x" data-pv="x" aria-label="移除">×</button></li>`).join('');
@@ -869,11 +950,61 @@ ${x.time?`<span class="tm">${x.time}</span>`:''}${x.date!==cur?`<span class="pv-
 $('#pvList').addEventListener('click',e=>{
   const b=e.target.closest('[data-pv]');if(!b)return;const i=+b.closest('.pv-item').dataset.i;
   if(b.dataset.pv==='x'){parsed.splice(i,1);renderPreview()}
-  if(b.dataset.pv==='tag'){const x=parsed[i];x.tag=TAG_KEYS[(TAG_KEYS.indexOf(x.tag)+1)%TAG_KEYS.length];b.textContent=x.tag;b.style.setProperty('--c',TAGS[x.tag])}
+  if(b.dataset.pv==='tag'){const x=parsed[i];pickCat(x.tag,v=>{x.tag=v;renderPreview()})}
 });
 $('#pvList').addEventListener('input',e=>{if(e.target.dataset.pv==='text')parsed[+e.target.closest('.pv-item').dataset.i].text=e.target.value});
 $('#pvRetry').addEventListener('click',()=>{if(SR&&!inApp)startVoice();else showType('',$('#bulkText').value)});
 $('#pvAdd').addEventListener('click',()=>{const l=parsed.filter(x=>x.text.trim());$('#voiceSheet').classList.remove('open');if(l.length)setTimeout(()=>addTasks(l),180)});
+
+/* ---------- categories ---------- */
+let pickCb=null;
+function pickCat(curId,cb){
+  pickCb=cb;
+  $('#pickGrid').innerHTML=db.cats.map((c,i)=>`<button class="cat-chip${c.id===curId?' on':''}" data-id="${c.id}" style="--c:${c.color};animation-delay:${i*30}ms">${esc(c.name)}</button>`).join('')
+    +`<button class="cat-chip none${!catOf(curId)?' on':''}" data-id="" style="animation-delay:${db.cats.length*30}ms">无分类</button>`;
+  openSheet('pickSheet',true);
+}
+$('#pickGrid').addEventListener('click',e=>{const b=e.target.closest('.cat-chip');if(!b)return;
+  $$('.cat-chip',$('#pickGrid')).forEach(x=>x.classList.toggle('on',x===b));sfx('tick');
+  setTimeout(()=>{$('#pickSheet').classList.remove('open');pickCb&&pickCb(b.dataset.id);pickCb=null},160)});
+$('#pickManage').onclick=()=>{$('#pickSheet').classList.remove('open');openCatMgr()};
+$('#catMgrBtn').onclick=()=>openCatMgr();
+function openCatMgr(){renderCats();openSheet('catSheet',true)}
+function renderCats(focusId){
+  $('#catList').innerHTML=db.cats.map((c,i)=>`<li class="cat-row" data-id="${c.id}" style="--c:${c.color};animation-delay:${i*30}ms">
+<button class="cat-dot" data-op="pal" aria-label="换颜色"></button>
+<div class="cat-fields">
+<input class="cat-name" data-f="name" value="${esc(c.name)}" placeholder="分类名称" maxlength="8">
+<input class="cat-kw" data-f="kw" value="${esc(c.kw||'')}" placeholder="自动识别关键词，如：开会,汇报">
+<div class="pal">${PALETTE.map(p=>`<button data-op="color" data-c="${p}" style="--c:${p}" class="${p===c.color?'on':''}"></button>`).join('')}</div>
+</div>
+<div class="cat-ops">${i?'<button data-op="up" aria-label="上移">↑</button>':''}<button class="rm" data-op="rm" aria-label="删除">✕</button></div>
+</li>`).join('');
+  if(focusId){const inp=$(`.cat-row[data-id="${focusId}"] .cat-name`);if(inp){inp.focus();inp.select()}}
+  const n=db.cats.length;$('#catSummary').textContent=n?`${n} 个：${db.cats.map(c=>c.name).join('、')}`:'还没有分类，点编辑新建';
+}
+$('#catList').addEventListener('input',e=>{const f=e.target.dataset.f;if(!f)return;
+  const c=catOf(e.target.closest('.cat-row').dataset.id);c[f]=f==='name'?e.target.value.trim()||'未命名':e.target.value;save()});
+$('#catList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-op]');if(!b)return;const row=b.closest('.cat-row'),id=row.dataset.id,i=db.cats.findIndex(c=>c.id===id),c=db.cats[i];
+  if(b.dataset.op==='pal')row.classList.toggle('palette');
+  if(b.dataset.op==='color'){c.color=b.dataset.c;save();row.style.setProperty('--c',c.color);$$('.pal button',row).forEach(x=>x.classList.toggle('on',x===b))}
+  if(b.dataset.op==='up'&&i>0){[db.cats[i-1],db.cats[i]]=[db.cats[i],db.cats[i-1]];save();renderCats()}
+  if(b.dataset.op==='rm'){
+    const used=db.tasks.filter(t=>t.tag===id).length;
+    if(used&&!confirm(`有 ${used} 条任务用了「${c.name}」，删除后它们会变成未分类。确定删除吗？`))return;
+    const bak={cat:c,i,tasks:db.tasks.filter(t=>t.tag===id).map(t=>t.id)};
+    db.cats.splice(i,1);db.tasks.forEach(t=>{if(t.tag===id)t.tag=''});if(filterCat===id)filterCat=null;save();
+    row.animate([{opacity:1,height:row.offsetHeight+'px'},{opacity:0,height:'0px'}],{duration:260,easing:'ease-in',fill:'forwards'}).onfinish=()=>renderCats();
+    toast(`已删除分类「${c.name}」`,'撤销',()=>{db.cats.splice(bak.i,0,bak.cat);db.tasks.forEach(t=>{if(bak.tasks.includes(t.id))t.tag=bak.cat.id});save();renderCats();refresh()});
+  }
+});
+$('#addCat').onclick=()=>{
+  const used=new Set(db.cats.map(c=>c.color)),color=PALETTE.find(p=>!used.has(p))||PALETTE[db.cats.length%PALETTE.length];
+  const c={id:'c_'+uid(),name:'新分类',color,kw:''};db.cats.push(c);save();renderCats(c.id);
+  const l=$('#catList');l.lastElementChild&&l.lastElementChild.scrollIntoView({block:'nearest',behavior:'smooth'});
+};
+new MutationObserver(()=>{if(!$('#catSheet').classList.contains('open')){refresh()}}).observe($('#catSheet'),{attributes:true,attributeFilter:['class']});
 
 /* ---------- calendar ---------- */
 let calMonth=null;
@@ -915,10 +1046,11 @@ function renderStats(){
   const weeks=16,start=addDays(monday(today),-(weeks-1)*7);let heat='';
   for(let i=0;i<weeks*7;i++){const x=addDays(start,i),n=doneOn(x),lv=n===0?0:n<=2?1:n<=4?2:n<=6?3:4;heat+=`<i class="${lv?'l'+lv:''}${x>today?' fut':''}" title="${md(x)} 完成 ${n}"></i>`}
   // tags
-  const lim=addDays(today,-29),cnt={};TAG_KEYS.forEach(k=>cnt[k]=0);
-  db.tasks.forEach(t=>{if(t.done&&t.date>=lim&&t.date<=today)cnt[t.tag||'其他']++});
+  const lim=addDays(today,-29),cnt={'':0};db.cats.forEach(c=>cnt[c.id]=0);
+  db.tasks.forEach(t=>{if(t.done&&t.date>=lim&&t.date<=today)cnt[catOf(t.tag)?t.tag:'']++});
   const tmx=Math.max(1,...Object.values(cnt));
-  const tags=TAG_KEYS.map(k=>`<div class="tagbar"><span>${k}</span><div class="tb"><i data-w="${cnt[k]/tmx*100}%" style="background:${TAGS[k]}"></i></div><b>${cnt[k]}</b></div>`).join('');
+  const rows=[...db.cats.map(c=>[c.name,c.color,cnt[c.id]]),['未分类','#A89F91',cnt['']]].filter((r,i,a)=>r[2]||i<a.length-1);
+  const tags=rows.map(([n,c,v])=>`<div class="tagbar"><span>${esc(n)}</span><div class="tb"><i data-w="${v/tmx*100}%" style="background:${c}"></i></div><b>${v}</b></div>`).join('');
   $('#statsBody').innerHTML=`<div class="kpis">
 <div class="kpi"><b>${d7}<small>/ ${t7}</small></b><span>近 7 天完成</span></div>
 <div class="kpi"><b>${t7?Math.round(d7/t7*100):0}<small>%</small></b><span>近 7 天完成率</span></div>
@@ -933,7 +1065,7 @@ function renderStats(){
 }
 
 /* ---------- settings ---------- */
-$('#btnSet').onclick=()=>{syncSettings();openSheet('setSheet')};
+$('#btnSet').onclick=()=>{syncSettings();renderCats();openSheet('setSheet')};
 function syncSettings(){
   $$('.seg[data-set]').forEach(s=>$$('button',s).forEach(b=>b.classList.toggle('on',db.settings[s.dataset.set]===b.dataset.v)));
   $$('[data-sw]').forEach(b=>b.classList.toggle('on',!!db.settings[b.dataset.sw]));
