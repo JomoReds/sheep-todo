@@ -282,6 +282,55 @@ svg{display:block}
 .about{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:12.5px;color:var(--ink3);line-height:1.6}
 .about img{width:52px;height:52px;border-radius:13px;flex:none;box-shadow:var(--shadow)}
 
+/* reminders */
+.bell{flex:none;width:30px;height:30px;margin-top:-3px;display:grid;place-items:center;color:var(--ink3);opacity:0;border-radius:50%;transition:opacity .2s,color .2s,transform .25s cubic-bezier(.3,1.8,.5,1)}
+.bell svg,.rem svg,.up-b svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bell svg{width:18px;height:18px}
+.task:hover .bell,.bell.on{opacity:1}
+.bell.on{color:var(--green)}
+.bell:active{transform:scale(1.3) rotate(-12deg)}
+@media (hover:none){.bell{opacity:.35}.bell.on{opacity:1}}
+.task.done .bell{opacity:0;pointer-events:none}
+.rem{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--green);font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer}
+.rem svg{width:12px;height:12px}
+.rem.past{color:var(--ink3)}
+.upcoming{margin-top:20px;padding:4px 12px 6px;border-radius:16px;background:var(--gsoft)}
+.upcoming .done-head{color:var(--green)}
+.upcoming.open .done-head svg{transform:rotate(90deg)}
+.upcoming.open .done-body{grid-template-rows:1fr}
+.up-list{list-style:none;margin:0;padding:0;overflow:hidden;min-height:0}
+.up-list li{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid rgba(94,159,86,.15);cursor:pointer;font-size:14px}
+.up-d{flex:none;width:58px;font-weight:700;color:var(--ink2);font-size:12.5px}
+.up-d small{display:block;font-weight:500;color:var(--ink3);font-size:11px}
+.up-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up-b{color:var(--green)}.up-b svg{width:14px;height:14px}
+.rem-task{font-size:15px;color:var(--ink2);margin:-6px 0 14px;line-height:1.5}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.quick button{padding:8px 13px;border-radius:99px;background:var(--paper2);font-size:13px;font-weight:600;color:var(--ink2);transition:background .2s,color .2s,transform .2s}
+.quick button:active{transform:scale(.94)}
+.quick button.on{background:var(--green);color:#fff}
+.rem-inputs{display:flex;gap:10px}
+.rem-inputs label{flex:1;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink3)}
+.rem-inputs input{height:46px;border:1px solid var(--line);border-radius:13px;padding:0 12px;background:var(--paper2);font-size:16px;outline:0;-webkit-appearance:none;appearance:none;min-width:0}
+.rem-inputs input:focus{border-color:var(--green2)}
+.rem-note{font-size:12px;color:var(--ink3);line-height:1.6;margin:12px 0 2px}
+.cal-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;background:var(--gsoft);color:var(--green)}
+.cal-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
+#dueSheet{z-index:58;align-items:center}
+#dueSheet .card{border-radius:28px;width:calc(100% - 32px);transform:translateY(30px) scale(.92);opacity:0;transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .3s;margin-bottom:0;padding-top:18px;padding-bottom:20px}
+#dueSheet.open .card{transform:none;opacity:1}
+.due-sheep{width:64px;height:64px;margin:0 auto 4px}
+.due-sheep svg{width:100%;height:100%;animation:ring 1.2s ease-in-out 2}
+#dueSheet h3{text-align:center}
+.due-list{list-style:none;margin:0;padding:0;max-height:46vh;overflow-y:auto}
+.due-list li{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.due-list .dt{flex:1;min-width:0}
+.due-list .dt b{display:block;font-size:16px;font-weight:600;word-break:break-word}
+.due-list .dt small{font-size:12px;color:var(--ink3)}
+.due-list button{flex:none;padding:7px 11px;border-radius:99px;font-size:12.5px;font-weight:700;background:var(--paper2);color:var(--ink2)}
+.due-list button.ok{background:var(--green);color:#fff}
+@keyframes ring{0%,100%{transform:rotate(0)}15%{transform:rotate(-12deg)}30%{transform:rotate(10deg)}45%{transform:rotate(-8deg)}60%{transform:rotate(6deg)}75%{transform:rotate(-3deg)}}
+
 /* categories */
 .sheet.stack{z-index:55}
 .cat-grid{display:flex;flex-wrap:wrap;gap:10px}
@@ -463,12 +512,40 @@ svg{display:block}
     <div class="set-row"><div>翻页特效</div><div class="seg" data-set="effect"><button data-v="book">翻书</button><button data-v="slide">卡片</button><button data-v="fade">淡入</button></div></div>
     <div class="set-row"><div>外观</div><div class="seg" data-set="theme"><button data-v="auto">跟随系统</button><button data-v="light">浅色</button><button data-v="dark">深色</button></div></div>
     <div class="set-row"><div>音效<small>勾选、翻页时的轻提示音</small></div><button class="sw" data-sw="sound" aria-label="音效"></button></div>
-    <div class="set-row"><div>到点提醒<small>带时间的任务到点弹出提醒（页面需开着）</small></div><button class="sw" data-sw="remind" aria-label="提醒"></button></div>
+    <div class="set-row"><div>提醒弹窗<small>到时间弹窗提醒；关着时错过的，下次打开会补弹</small></div><button class="sw" data-sw="remind" aria-label="提醒"></button></div>
+    <div class="set-row"><div>新任务自动提醒<small>有时间的到点提醒；以后日期的当天 9:00 提醒</small></div><button class="sw" data-sw="autoRemind" aria-label="自动提醒"></button></div>
+    <div class="set-row"><div>同步到手机日历<small>把所有未到的提醒加到日历，锁屏也会响</small></div><button class="link-btn" id="icsAll">导出</button></div>
     <div class="set-row"><div>安装到桌面<small id="installHint">用小羊图标打开，像 App 一样</small></div><button class="link-btn" id="installBtn">安装</button></div>
     <div class="set-row"><div>备份数据<small>数据只存在这台设备的浏览器里</small></div><div style="display:flex;gap:14px"><button class="link-btn" id="exportBtn">导出</button><button class="link-btn" id="importBtn">导入</button></div></div>
     <div class="set-row"><div>清空所有任务</div><button class="link-btn danger" id="clearBtn">清空</button></div>
     <div class="about"><img src="icon-192.png" alt=""><div>咩记 v1.0<br>翻到哪天就记哪天。左右滑动或点上方日期切换，左滑任务可删除。</div></div>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+</div>
+
+<!-- reminder editor -->
+<div class="sheet stack" id="remSheet">
+  <div class="scrim" data-close></div>
+  <div class="card">
+    <div class="grab"></div>
+    <h3>设置提醒</h3>
+    <div class="rem-task" id="remTask"></div>
+    <div class="quick" id="remQuick"></div>
+    <div class="rem-inputs"><label>日期<input type="date" id="remDate"></label><label>时间<input type="time" id="remTime"></label></div>
+    <div class="rem-note">网页关着时手机不会响。重要的事点「加到手机日历」，到点系统会准时提醒，锁屏也能收到。</div>
+    <div class="row-btns"><button class="btn" id="remOff">不提醒</button><button class="btn primary" id="remSave">保存</button></div>
+    <button class="btn cal-btn" id="remIcs"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4M10 15h4"/></svg>保存并加到手机日历</button>
+  </div>
+</div>
+
+<!-- due popup -->
+<div class="sheet stack" id="dueSheet">
+  <div class="scrim"></div>
+  <div class="card due-card">
+    <div class="due-sheep"><svg viewBox="0 0 64 64"><use href="#sheep"/></svg></div>
+    <h3 id="dueTitle">到时间啦</h3>
+    <ul class="due-list" id="dueList"></ul>
+    <div class="row-btns"><button class="btn primary" id="dueOk">知道了</button></div>
   </div>
 </div>
 
@@ -511,7 +588,7 @@ const DEFAULT_CATS=[
 ];
 const WK=['日','一','二','三','四','五','六'];
 const MON=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-const defaults={effect:'book',sound:true,theme:'auto',remind:true,autoCat:true};
+const defaults={effect:'book',sound:true,theme:'auto',remind:true,autoCat:true,autoRemind:true};
 
 /* ---------- storage ---------- */
 let db=(()=>{try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&Array.isArray(d.tasks)){d.settings={...defaults,...(d.settings||{})};return d}}catch(e){}return{tasks:[],settings:{...defaults},seen:false}})();
@@ -562,15 +639,35 @@ if(!db.seen){
   db.seen=true;save();
 }
 
+/* ---------- reminder model ---------- */
+const nowStr=()=>{const d=new Date();return `${ymd(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`};
+function defaultRemind(date,time){
+  if(time)return `${date}T${time}`;
+  if(date>today)return `${date}T09:00`;
+  return '';
+}
+(function migrate(){
+  let ch=false;const n=nowStr();
+  db.tasks.forEach(t=>{if(!('remindAt'in t)){
+    t.remindAt=t.done?'':defaultRemind(t.date,t.time);
+    if(t.remindAt&&t.remindAt<n&&t.date<today)t.reminded=true;
+    ch=true}});
+  if(ch)save();
+})();
+const remLabel=r=>{if(!r)return '';const[d,tm]=r.split('T');return `${rel(d)||md(d)} ${tm}`};
+const BELL='<svg viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>';
+
 /* ---------- page rendering ---------- */
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.1 1.1 5.9L12 16.7l-5.3 2.8 1.1-5.9-4.4-4.1 6-.8z"/></svg>';
 function taskHTML(t){
-  const meta=(t.time?`<span class="tm">${t.time}</span>`:'')+catChip(t.tag,'data-act="tag"')+(t.from?`<span class="from">自 ${md(t.from)} 顺延</span>`:'');
+  const showRem=t.remindAt&&!t.done&&t.remindAt.split('T')[0]!==t.date||(t.remindAt&&!t.done&&!t.time);
+  const meta=(t.time?`<span class="tm">${t.time}</span>`:'')+(showRem?`<span class="rem${t.reminded?' past':''}" data-act="rem">${BELL}${remLabel(t.remindAt)}</span>`:'')+catChip(t.tag,'data-act="tag"')+(t.from?`<span class="from">自 ${md(t.from)} 顺延</span>`:'');
   return `<li class="task${t.done?' done':''}" data-id="${t.id}">
 <button class="del" data-act="del">删除</button>
 <div class="task-row">
 <button class="check" data-act="toggle" aria-label="${t.done?'标为未完成':'完成'}"><svg viewBox="0 0 26 26"><circle class="ring" cx="13" cy="13" r="11.2"/><path class="tick" d="M8 13.4l3.4 3.4L18.2 10"/></svg></button>
 <div class="tbody"><span class="text" data-act="edit">${esc(t.text)}</span><div class="meta">${meta}</div></div>
+<button class="bell${t.remindAt&&!t.done?' on':''}" data-act="rem" aria-label="提醒">${BELL}</button>
 <button class="star${t.star?' on':''}" data-act="star" aria-label="重要">${STAR}</button>
 </div></li>`;
 }
@@ -611,8 +708,16 @@ ${filterBar(ts)}
 <ul class="list">${undone.map(taskHTML).join('')}</ul>
 ${empty}
 ${done.length?`<div class="done-group${doneOpen?' open':''}"><button class="done-head" data-act="done-toggle"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>已完成 ${done.length}</button><div class="done-body"><ul class="list">${done.map(taskHTML).join('')}</ul></div></div>`:''}
+${date===today?upcomingHTML():''}
 <div class="pg-foot">${total?`<button class="ghost" data-act="report">复制日报</button>`:''}</div>
 <div class="pg-num">— ${doy} —</div>`;
+}
+let upOpen=true;
+function upcomingHTML(){
+  const lim=addDays(today,7),ts=db.tasks.filter(t=>!t.done&&t.date>today&&t.date<=lim).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:tkey(a)<tkey(b)?-1:1);
+  if(!ts.length)return '';
+  return `<div class="upcoming${upOpen?' open':''}"><button class="done-head" data-act="up-toggle"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>接下来 7 天 · ${ts.length} 件</button>
+<div class="done-body"><ul class="up-list">${ts.map(t=>`<li data-act="up-go" data-d="${t.date}"><span class="up-d">${rel(t.date)||md(t.date)}<small>周${WK[pd(t.date).getDay()]}</small></span><span class="up-t">${esc(t.text)}</span>${t.remindAt?`<span class="up-b">${BELL}</span>`:''}</li>`).join('')}</ul></div></div>`;
 }
 const overdue=()=>{const lim=addDays(today,-30);return db.tasks.filter(t=>!t.done&&t.date<today&&t.date>=lim)};
 
@@ -785,6 +890,8 @@ stage.addEventListener('click',e=>{
   switch(a.dataset.act){
     case 'toggle':toggle(id,li);break;
     case 'star':{const t=byId(id);t.star=!t.star;save();a.classList.toggle('on',t.star);if(t.star)sfx('tick');clearTimeout(pendingRefresh);pendingRefresh=setTimeout(refresh,500);break}
+    case 'rem':openRem(id);break;
+    case 'up-go':go(a.dataset.d);break;
     case 'tag':{const t=byId(id);pickCat(t.tag,v=>{t.tag=v;save();refresh()});break}
     case 'filter':{const v=a.dataset.cat;filterCat=a.classList.contains('on')||v===undefined?null:v;if(a.textContent==='全部')filterCat=null;refresh();break}
     case 'edit':startEdit(li);break;
@@ -792,6 +899,7 @@ stage.addEventListener('click',e=>{
     case 'today':go(today);break;
     case 'carry':carry();break;
     case 'report':copyReport();break;
+    case 'up-toggle':upOpen=!upOpen;a.parentNode.classList.toggle('open',upOpen);break;
     case 'done-toggle':doneOpen=!doneOpen;a.parentNode.classList.toggle('open',doneOpen);break;
   }
 });
@@ -829,10 +937,14 @@ function carry(){
 }
 function addTasks(list){
   const now=Date.now();const dates=new Set();
-  list.forEach((x,i)=>{db.tasks.push({id:uid(),text:x.text,tag:x.tag??guessTag(x.text),date:x.date||cur,time:x.time||null,done:false,star:false,createdAt:now+i});dates.add(x.date||cur)});
+  let nRem=0;
+  list.forEach((x,i)=>{const date=x.date||cur,time=x.time||null,remindAt=(db.settings.autoRemind||x.wantRemind)?defaultRemind(date,time)||(x.wantRemind?`${date}T09:00`:''):'';
+    if(remindAt&&remindAt>nowStr())nRem++;
+    db.tasks.push({id:uid(),text:x.text,tag:x.tag??guessTag(x.text),date,time,remindAt,done:false,star:false,createdAt:now+i});dates.add(date)});
   save();refresh();sfx('add');
+  if(nRem)askNotify();
   const other=[...dates].filter(d=>d!==cur);
-  if(other.length){const d=other[0];toast(`已记到 ${md(d)}${rel(d)?'（'+rel(d)+'）':''}`,'去看看',()=>go(d))}
+  if(other.length){const d=other[0];toast(`已记到 ${md(d)}${rel(d)?'（'+rel(d)+'）':''}${nRem?'，到时会提醒':''}`,'去看看',()=>go(d))}
 }
 
 /* ---------- composer ---------- */
@@ -874,6 +986,8 @@ function parseTasks(raw,base){
   const out=[];let ctx=base||cur,pending=null;
   for(let seg of s.split(/[，,。；;！!？?\n]/)){
     seg=seg.trim();if(!seg)continue;
+    let wantRemind=false;
+    seg=seg.replace(/^(?:我们?|还得|还要|一定要|要)?(?:记得|别忘了)?(?:提醒我|提醒一下|提醒)(?:一下)?/,()=>{wantRemind=true;return ''}).trim();if(!seg)continue;
     let m=seg.match(/^(今天|明天|后天|大后天)/);
     if(m){ctx=addDays(today,{今天:0,明天:1,后天:2,大后天:3}[m[1]]);seg=seg.slice(m[1].length).replace(/^[的\s]+/,'')}
     m=seg.match(/^(下周|下星期|下礼拜|这周|本周|周|星期|礼拜)([一二三四五六日天])/);
@@ -883,7 +997,7 @@ function parseTasks(raw,base){
     seg=clean(seg.replace(/\s+/g,' '));
     if(!seg||(seg.length<2&&!/[a-z0-9]/i.test(seg))||/^(就这些|没了|就这样|好了|好的|OK|ok|结束)$/.test(seg)){if(time)pending=time;continue}
     if(!time&&pending)time=pending;pending=null;
-    out.push({text:seg,time,tag:guessTag(seg),date:ctx});
+    out.push({text:seg,time,tag:guessTag(seg),date:ctx,wantRemind});
   }
   return out;
 }
@@ -1072,7 +1186,7 @@ function syncSettings(){
 }
 $$('.seg[data-set]').forEach(s=>s.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;db.settings[s.dataset.set]=b.dataset.v;save();syncSettings();applyTheme()}));
 $$('[data-sw]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.sw;db.settings[k]=!db.settings[k];save();syncSettings();
-  if(k==='remind'&&db.settings.remind&&'Notification'in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});
+  if(k==='remind'&&db.settings.remind)askNotify(true);
   if(k==='sound'&&db.settings.sound)sfx('tick')}));
 function applyTheme(){
   const t=db.settings.theme,r=document.documentElement;
@@ -1152,7 +1266,7 @@ function sfx(kind){
   }catch(e){}
 }
 function tone(t,f1,f2,dur,vol){const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur*.5);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur+.03)}
-const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+const buzz=ms=>{try{if(navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive))navigator.vibrate(ms)}catch(e){}};
 function sparkle(el){
   if(!el)return;const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
   const cols=['#8EC57F','#F2A39B','#F5C96B','#8EC57F','#9FD3E6','#F2A39B','#8EC57F'];
@@ -1193,21 +1307,108 @@ function tick(){
   if(!parts.length)cx.clearRect(0,0,innerWidth,innerHeight);
 }
 
-/* ---------- reminders & day rollover ---------- */
-function minutes(hm){const[h,m]=hm.split(':').map(Number);return h*60+m}
-setInterval(()=>{
-  const now=new Date(),nd=ymd(now);
-  if(nd!==today){const wasToday=cur===today;today=nd;if(wasToday)cur=today;mount()}
+/* ---------- reminder editor ---------- */
+let remId=null;
+function openRem(id){
+  const t=byId(id);if(!t)return;remId=id;
+  $('#remTask').textContent=`${t.text} · ${rel(t.date)||md(t.date)}${t.time?' '+t.time:''}`;
+  const r=t.remindAt||defaultRemind(t.date,t.time)||`${t.date}T${t.date===today?pad(Math.min(23,new Date().getHours()+1))+':00':'09:00'}`;
+  $('#remDate').value=r.split('T')[0];$('#remTime').value=r.split('T')[1];
+  const q=[];
+  if(t.time){q.push(['准时',`${t.date}T${t.time}`]);const[h,m]=t.time.split(':').map(Number);const d=new Date(pd(t.date).getTime()+(h*60+m-60)*6e4);q.push(['提前 1 小时',`${ymd(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`])}
+  q.push(['当天 9:00',`${t.date}T09:00`]);
+  q.push(['前一天 20:00',`${addDays(t.date,-1)}T20:00`]);
+  if(t.date>addDays(today,2))q.push(['提前 3 天',`${addDays(t.date,-3)}T09:00`]);
+  $('#remQuick').innerHTML=q.map(([l,v])=>`<button data-v="${v}">${l}</button>`).join('');
+  markQuick();$('#remOff').textContent=t.remindAt?'取消提醒':'不提醒';
+  openSheet('remSheet',true);
+}
+function markQuick(){const v=`${$('#remDate').value}T${$('#remTime').value}`;$$('#remQuick button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+$('#remQuick').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const[d,tm]=b.dataset.v.split('T');$('#remDate').value=d;$('#remTime').value=tm;markQuick();sfx('tick')});
+['remDate','remTime'].forEach(i=>$('#'+i).addEventListener('input',markQuick));
+function saveRem(){
+  const t=byId(remId);if(!t)return null;const d=$('#remDate').value,tm=$('#remTime').value;
+  if(!d||!tm){toast('请选好日期和时间');return null}
+  t.remindAt=`${d}T${tm}`;t.reminded=false;save();$('#remSheet').classList.remove('open');refresh();askNotify();
+  if(t.remindAt<=nowStr())setTimeout(checkDue,600);
+  else toast(`会在 ${remLabel(t.remindAt)} 提醒你`);
+  return t;
+}
+$('#remSave').onclick=saveRem;
+$('#remIcs').onclick=()=>{const t=saveRem();if(t)downloadIcs([t],t.text)};
+$('#remOff').onclick=()=>{const t=byId(remId);if(t){t.remindAt='';t.reminded=false;save()}$('#remSheet').classList.remove('open');refresh();toast('已取消提醒')};
+
+/* ---------- notifications ---------- */
+let askedNotify=false;
+function askNotify(force){
+  if(!('Notification'in window)||Notification.permission!=='default'||(askedNotify&&!force))return;
+  askedNotify=true;try{Notification.requestPermission().catch(()=>{})}catch(e){}
+}
+async function sysNotify(title,body){
+  if(!('Notification'in window)||Notification.permission!=='granted')return;
+  try{const reg=await navigator.serviceWorker?.getRegistration();if(reg&&reg.showNotification){await reg.showNotification(title,{body,icon:'icon-192.png',badge:'favicon.png',tag:'mieji-'+body,renotify:true});return}}catch(e){}
+  try{new Notification(title,{body,icon:'icon-192.png'})}catch(e){}
+}
+
+/* ---------- due popup ---------- */
+let dueShown=new Set();
+function checkDue(){
   if(!db.settings.remind)return;
-  const nm=now.getHours()*60+now.getMinutes();
-  db.tasks.forEach(t=>{
-    if(t.done||t.date!==today||!t.time||t.reminded)return;
-    const diff=nm-minutes(t.time);
-    if(diff>=0&&diff<=10){t.reminded=true;save();toast(`⏰ ${t.time} ${t.text}`);sfx('start');buzz([30,60,30]);
-      if('Notification'in window&&Notification.permission==='granted'){try{new Notification('咩记提醒',{body:`${t.time}  ${t.text}`,icon:'icon-192.png'})}catch(e){}}}
+  const n=nowStr(),due=db.tasks.filter(t=>!t.done&&t.remindAt&&!t.reminded&&t.remindAt<=n).sort((a,b)=>a.remindAt<b.remindAt?-1:1);
+  if(!due.length)return;
+  const fresh=due.filter(t=>!dueShown.has(t.id));if(!fresh.length&&$('#dueSheet').classList.contains('open'))return;
+  fresh.forEach(t=>{dueShown.add(t.id);if(!document.hidden||true)sysNotify('咩记提醒',`${t.time?t.time+'  ':''}${t.text}`)});
+  renderDue(due);
+  if(!$('#dueSheet').classList.contains('open')){$('#dueSheet').classList.add('open');sfx('done');buzz([40,80,40])}
+}
+function renderDue(due){
+  $('#dueTitle').textContent=due.length>1?`有 ${due.length} 件事到时间啦`:'到时间啦';
+  $('#dueList').innerHTML=due.map(t=>`<li data-id="${t.id}"><div class="dt"><b>${esc(t.text)}</b><small>${rel(t.date)||md(t.date)}${t.time?' '+t.time:''}${t.remindAt.split('T')[0]<today?' · 之前错过的提醒':''}</small></div><button data-due="snooze">10 分钟后</button><button class="ok" data-due="done">完成</button></li>`).join('');
+}
+$('#dueList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-due]');if(!b)return;const li=b.closest('li'),t=byId(li.dataset.id);if(!t)return;
+  if(b.dataset.due==='done'){t.done=true;t.doneAt=Date.now();t.reminded=true;sfx('tick')}
+  else{const d=new Date(Date.now()+10*6e4);t.remindAt=`${ymd(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`;dueShown.delete(t.id)}
+  save();
+  li.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateX(30px)'}],{duration:260,fill:'forwards'}).onfinish=()=>{li.remove();if(!$('#dueList').children.length){$('#dueSheet').classList.remove('open')}refresh()};
+});
+$('#dueOk').onclick=()=>{$$('#dueList li').forEach(li=>{const t=byId(li.dataset.id);if(t)t.reminded=true});save();$('#dueSheet').classList.remove('open');refresh()};
+
+/* ---------- calendar export (.ics) ---------- */
+function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/[,;]/g,m=>'\\'+m).replace(/\n/g,'\\n')}
+function stamp(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'')}
+function buildIcs(ts){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//mieji//sheep-todo//CN','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:咩记'];
+  ts.forEach(t=>{
+    const ds=t.date.replace(/-/g,'');let start;
+    L.push('BEGIN:VEVENT',`UID:${t.id}@mieji`,`DTSTAMP:${stamp(new Date())}`);
+    if(t.time){const tm=t.time.replace(':','')+'00';const end=new Date(pd(t.date).getTime()+(+t.time.split(':')[0]*60+ +t.time.split(':')[1]+30)*6e4);
+      L.push(`DTSTART:${ds}T${tm}`,`DTEND:${ymd(end).replace(/-/g,'')}T${pad(end.getHours())}${pad(end.getMinutes())}00`);start=new Date(`${t.date}T${t.time}:00`)}
+    else{L.push(`DTSTART;VALUE=DATE:${ds}`,`DTEND;VALUE=DATE:${addDays(t.date,1).replace(/-/g,'')}`);start=pd(t.date)}
+    L.push(`SUMMARY:${icsEsc(t.text)}`,'DESCRIPTION:来自咩记');
+    if(t.remindAt){const mins=Math.round((new Date(t.remindAt+':00')-start)/6e4);
+      L.push('BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(t.text)}`,`TRIGGER:${mins<0?'-':''}PT${Math.abs(mins)}M`,'END:VALARM')}
+    L.push('END:VEVENT');
   });
-},20000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ymd(new Date())!==today){const w=cur===today;today=ymd(new Date());if(w)cur=today;mount()}});
+  L.push('END:VCALENDAR');return L.join('\r\n');
+}
+function downloadIcs(ts,name){
+  const blob=new Blob([buildIcs(ts)],{type:'text/calendar;charset=utf-8'}),url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`咩记-${String(name).slice(0,12)}.ics`;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  toast(/iPhone|iPad/.test(navigator.userAgent)?'在弹出的页面点「添加到日历」':'已生成日历文件，打开它即可加到日历');
+}
+$('#icsAll').onclick=()=>{
+  const n=nowStr(),ts=db.tasks.filter(t=>!t.done&&t.remindAt&&t.remindAt>n);
+  if(!ts.length){toast('还没有未到的提醒');return}
+  downloadIcs(ts,`${ts.length}个提醒`);
+};
+
+/* ---------- ticking & day rollover ---------- */
+function rollover(){const nd=ymd(new Date());if(nd!==today){const w=cur===today;today=nd;if(w)cur=today;mount()}}
+setInterval(()=>{rollover();checkDue()},15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){rollover();checkDue()}});
+setTimeout(checkDue,900);
 
 if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
