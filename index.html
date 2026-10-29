@@ -220,6 +220,9 @@ svg{display:block}
 .v-text{min-height:60px;font-size:19px;line-height:1.6;text-align:center;word-break:break-word}
 .v-text .interim{color:var(--ink3)}
 .v-text .ph{color:var(--ink3);font-size:16px}
+.v-hint2{min-height:18px;text-align:center;font-size:12.5px;color:var(--green);font-weight:600;margin-top:4px}
+.kbd-tip{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--green);background:var(--gsoft);border-radius:12px;padding:9px 12px;margin-bottom:10px;line-height:1.5}
+.kbd-tip svg{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .v-hint{font-size:12.5px;color:var(--ink3);text-align:center;line-height:1.7;margin:10px 0 18px}
 .row-btns{display:flex;gap:10px;margin-top:16px}
 .btn{flex:1;height:48px;border-radius:15px;background:var(--paper2);font-weight:700;font-size:15px;transition:transform .2s,filter .2s}
@@ -464,11 +467,13 @@ svg{display:block}
       <h3>说说今天要做的事<small id="vTarget"></small></h3>
       <div class="wave" id="wave"><span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span><span style="--i:5"></span><span style="--i:6"></span><span style="--i:7"></span><span style="--i:8"></span></div>
       <div class="v-text" id="vText"><span class="ph">正在听…</span></div>
-      <div class="v-hint">可以一口气说好几件，比如：<br>“上午十点开会，然后下单甲醇，下午三点测样品，明天写周报”</div>
+      <div class="v-hint2" id="vHint2"></div>
+      <div class="v-hint">中间停顿没关系，会接着听。可以一口气说好几件，比如：<br>“上午十点开会，然后下单甲醇，下午三点测样品，明天写周报”</div>
       <div class="row-btns"><button class="btn" data-close>取消</button><button class="btn primary" id="vStop">说完了</button></div>
     </div>
     <div class="pane" id="pType" hidden>
-      <h3>批量添加<small>每行或逗号一条</small></h3>
+      <h3>说出或输入任务<small>每行或逗号一条</small></h3>
+      <div class="kbd-tip"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>点键盘右下角（或空格旁）的麦克风说话，说完点「识别成任务」</div>
       <div class="notice" id="typeNotice" hidden></div>
       <textarea class="bulk" id="bulkText" placeholder="点键盘上的 🎤 用输入法说话，或者直接输入：&#10;上午十点开会，下单甲醇&#10;下午三点测样品"></textarea>
       <div class="row-btns"><button class="btn" data-close>取消</button><button class="btn primary" id="bulkGo">识别成任务</button></div>
@@ -511,6 +516,7 @@ svg{display:block}
     <div class="set-row"><div>分类管理<small id="catSummary">新建、改名、换颜色、设自动识别关键词</small></div><button class="link-btn" id="catMgrBtn">编辑</button></div>
     <div class="set-row"><div>自动分类<small>按关键词给新任务自动选分类</small></div><button class="sw" data-sw="autoCat" aria-label="自动分类"></button></div>
     <div class="set-row"><div>翻页特效</div><div class="seg" data-set="effect"><button data-v="book">翻书</button><button data-v="slide">卡片</button><button data-v="fade">淡入</button></div></div>
+    <div class="set-row"><div>语音方式<small>键盘听写：用输入法自带的 🎤，更准，也不用每次授权</small></div><div class="seg" data-set="voice"><button data-v="web">网页识别</button><button data-v="kbd">键盘听写</button></div></div>
     <div class="set-row"><div>外观</div><div class="seg" data-set="theme"><button data-v="auto">跟随系统</button><button data-v="light">浅色</button><button data-v="dark">深色</button></div></div>
     <div class="set-row"><div>音效<small>勾选、翻页时的轻提示音</small></div><button class="sw" data-sw="sound" aria-label="音效"></button></div>
     <div class="set-row"><div>提醒弹窗<small>到时间弹窗提醒；关着时错过的，下次打开会补弹</small></div><button class="sw" data-sw="remind" aria-label="提醒"></button></div>
@@ -589,7 +595,7 @@ const DEFAULT_CATS=[
 ];
 const WK=['日','一','二','三','四','五','六'];
 const MON=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-const defaults={effect:'book',sound:true,theme:'auto',remind:true,autoCat:true,autoRemind:true};
+const defaults={voice:'web',effect:'book',sound:true,theme:'auto',remind:true,autoCat:true,autoRemind:true};
 
 /* ---------- storage ---------- */
 let db=(()=>{try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&Array.isArray(d.tasks)){d.settings={...defaults,...(d.settings||{})};return d}}catch(e){}return{tasks:[],settings:{...defaults},seen:false}})();
@@ -1012,41 +1018,82 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){const s=$$('.sheet.
 /* ---------- voice ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const inApp=/MicroMessenger|QQ\/|WeCom|wxwork|DingTalk|Weibo/i.test(navigator.userAgent);
-let rec=null,finalTxt='',interimTxt='',recActive=false,recFailed=false,parsed=[];
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let rec=null,committed=[],sessionTxt='',recActive=false,recFailed=false,stopping=false,parsed=[];
+let lastHeard=0,startedAt=0,watchT=0;
 function showPane(id){['pListen','pType','pPreview'].forEach(p=>$('#'+p).hidden=p!==id)}
 $('#micBtn').addEventListener('click',startVoice);
+const allTxt=()=>[...committed,sessionTxt].map(x=>x.trim()).filter(Boolean).join('，');
+function drawVoice(){
+  const c=committed.map(x=>x.trim()).filter(Boolean).join('，');
+  $('#vText').innerHTML=(c||sessionTxt)?esc(c)+(c&&sessionTxt?'，':'')+(sessionTxt?`<span class="interim">${esc(sessionTxt)}</span>`:''):'<span class="ph">正在听…</span>';
+}
 function startVoice(){
   openSheet('voiceSheet');
   $('#vTarget').textContent=cur===today?'':`· 记到 ${md(cur)}`;
-  if(!SR||inApp){showType(inApp?'在微信 / QQ 等 App 里不能直接调用网页语音。可以点键盘上的 🎤 用输入法说话，说完点“识别成任务”；或点右上角 ··· 用浏览器打开。':'这个浏览器不支持网页语音。点键盘上的 🎤 用输入法说话（讯飞、搜狗、系统键盘都可以），说完点“识别成任务”。');return}
-  showPane('pListen');finalTxt='';interimTxt='';recFailed=false;
-  $('#vText').innerHTML='<span class="ph">正在听…</span>';$('#wave').className='wave';
-  try{
-    rec=new SR();rec.lang='zh-CN';rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
-    rec.onresult=e=>{interimTxt='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)finalTxt+=r[0].transcript+'，';else interimTxt+=r[0].transcript}
-      $('#vText').innerHTML=esc(finalTxt.replace(/，$/,''))+(interimTxt?`<span class="interim">${esc(interimTxt)}</span>`:'');
-      const w=$('#wave');w.classList.add('loud');clearTimeout(w._t);w._t=setTimeout(()=>w.classList.remove('loud'),500)};
-    rec.onerror=e=>{
-      if(e.error==='no-speech'||e.error==='aborted')return;
-      recFailed=true;
-      const msg={network:'语音服务连不上。Chrome 的语音识别要连谷歌服务器，国内网络用不了；换 Edge 浏览器或 iPhone 的 Safari 可以直接说。现在也可以点键盘上的 🎤 用输入法说话 👇','not-allowed':'麦克风权限被拒绝了。可以在浏览器地址栏左侧允许麦克风，或者点键盘上的 🎤 用输入法说话 👇','service-not-allowed':'这个浏览器没开放语音服务。点键盘上的 🎤 用输入法说话 👇','audio-capture':'没找到麦克风。可以直接输入，或用输入法语音 👇'}[e.error]||`语音识别出错（${e.error}），可以改用输入法语音 👇`;
-      showType(msg,finalTxt+interimTxt);
-    };
-    rec.onend=()=>{recActive=false;if(!recFailed&&$('#voiceSheet').classList.contains('open')&&!$('#pListen').hidden)finishVoice()};
-    rec.start();recActive=true;sfx('start');
-  }catch(err){showType('语音没能启动，可以点键盘上的 🎤 用输入法说话 👇')}
+  if(inApp){showType('在微信 / QQ 里不能直接调用网页语音。点键盘上的 🎤 用输入法说话，说完点“识别成任务”；或点右上角 ··· 用浏览器打开。');return}
+  if(!SR){showType('这个浏览器不支持网页语音。点键盘上的 🎤 用输入法说话，说完点“识别成任务”。');return}
+  if(db.settings.voice==='kbd'){showType('');return}
+  showPane('pListen');committed=[];sessionTxt='';recFailed=false;stopping=false;
+  drawVoice();$('#wave').className='wave';
+  startedAt=lastHeard=Date.now();
+  listen();sfx('start');
+  clearInterval(watchT);watchT=setInterval(watch,500);
 }
-function stopRec(abort){if(rec&&recActive){try{abort?rec.abort():rec.stop()}catch(e){}}recActive=false}
-$('#vStop').addEventListener('click',()=>{$('#wave').className='wave idle';if(recActive)stopRec(false);else finishVoice()});
+function getRec(){
+  if(rec)return rec;                       // 同一次打开只建一个识别器，避免反复弹权限
+  rec=new SR();rec.lang='zh-CN';rec.continuous=false;rec.interimResults=true;rec.maxAlternatives=1;
+  rec.onresult=e=>{
+    let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;   // 每次取整段，iOS 不会丢字
+    if(t!==sessionTxt){sessionTxt=t;lastHeard=Date.now();drawVoice();
+      const w=$('#wave');w.classList.add('loud');clearTimeout(w._t);w._t=setTimeout(()=>w.classList.remove('loud'),450)}
+  };
+  rec.onspeechstart=()=>{lastHeard=Date.now()};
+  rec.onerror=e=>{
+    if(e.error==='no-speech'||e.error==='aborted')return;
+    recFailed=true;clearInterval(watchT);
+    const msg={network:'语音服务连不上（Chrome 要连谷歌服务器，国内用不了）。换 Safari / Edge，或在设置里把「语音方式」改成「键盘听写」。现在可以点键盘上的 🎤 说话 👇',
+      'not-allowed':isIOS?'没拿到麦克风权限。可以到 iPhone「设置 → App → Safari → 麦克风」选「允许」；或在咩记设置里把「语音方式」改成「键盘听写」，以后就不用再授权了 👇':'麦克风权限被拒绝了。点地址栏左侧的图标允许麦克风，或改用键盘上的 🎤 👇',
+      'service-not-allowed':'这个浏览器没开放语音服务。点键盘上的 🎤 用输入法说话 👇','audio-capture':'没找到麦克风。可以直接输入，或用输入法语音 👇'}[e.error]||`语音识别出错（${e.error}），可以改用键盘上的 🎤 👇`;
+    showType(msg,allTxt());
+  };
+  rec.onend=()=>{
+    recActive=false;
+    if(sessionTxt.trim()){committed.push(sessionTxt);sessionTxt=''}
+    if(recFailed)return;
+    const listening=$('#voiceSheet').classList.contains('open')&&!$('#pListen').hidden;
+    if(listening&&!stopping){setTimeout(()=>{if(!stopping&&!recActive)listen()},120);return}   // 停顿时自动接着听
+    if(listening)finishVoice();
+  };
+  return rec;
+}
+function listen(){try{getRec().start();recActive=true}catch(e){if(!recActive){recFailed=true;showType('语音没能启动，可以点键盘上的 🎤 用输入法说话 👇',allTxt())}}}
+function watch(){
+  if($('#pListen').hidden||!$('#voiceSheet').classList.contains('open')){clearInterval(watchT);return}
+  const quiet=Date.now()-lastHeard,has=!!allTxt();
+  $('#vHint2').textContent=has?(quiet>2500?`停顿中… ${Math.max(0,Math.ceil((7000-quiet)/1000))} 秒后自动结束`:'继续说，或点「说完了」'):'';
+  if(has&&quiet>7000)doneListening();
+  else if(!has&&Date.now()-startedAt>12000){doneListening()}
+}
+function doneListening(){
+  clearInterval(watchT);stopping=true;$('#wave').className='wave idle';
+  if(recActive){try{rec.stop()}catch(e){finishVoice()}setTimeout(()=>{if(!$('#pListen').hidden&&$('#voiceSheet').classList.contains('open'))finishVoice()},1200)}
+  else finishVoice();
+}
+function stopRec(abort){stopping=true;clearInterval(watchT);if(rec&&recActive){try{abort?rec.abort():rec.stop()}catch(e){}}recActive=false}
+$('#vStop').addEventListener('click',doneListening);
 function finishVoice(){
-  const txt=(finalTxt+interimTxt).trim();
-  if(!txt){$('#vText').innerHTML='<span class="ph">没听清，再点一次麦克风试试</span>';$('#wave').className='wave idle';return}
+  if($('#pListen').hidden)return;
+  const txt=allTxt();
+  if(!txt){$('#vText').innerHTML='<span class="ph">没听到声音，再点一次麦克风试试</span>';$('#wave').className='wave idle';$('#vHint2').textContent='';return}
   preview(parseTasks(txt,cur),txt);
 }
 function showType(msg,prefill=''){
   stopRec(true);showPane('pType');
   const n=$('#typeNotice');n.hidden=!msg;n.textContent=msg||'';
-  const ta=$('#bulkText');ta.value=prefill.replace(/，$/,'');setTimeout(()=>ta.focus(),350);
+  const ta=$('#bulkText');ta.value=prefill.replace(/，$/,'');
+  try{ta.focus({preventScroll:true})}catch(e){}       // 在点击当下聚焦，iPhone 才会弹出键盘
+  setTimeout(()=>{if(document.activeElement!==ta)ta.focus()},380);
 }
 $('#bulkGo').addEventListener('click',()=>{const v=$('#bulkText').value.trim();if(!v)return;preview(parseTasks(v,cur),v)});
 function preview(list,raw){
@@ -1068,7 +1115,7 @@ $('#pvList').addEventListener('click',e=>{
   if(b.dataset.pv==='tag'){const x=parsed[i];pickCat(x.tag,v=>{x.tag=v;renderPreview()})}
 });
 $('#pvList').addEventListener('input',e=>{if(e.target.dataset.pv==='text')parsed[+e.target.closest('.pv-item').dataset.i].text=e.target.value});
-$('#pvRetry').addEventListener('click',()=>{if(SR&&!inApp)startVoice();else showType('',$('#bulkText').value)});
+$('#pvRetry').addEventListener('click',()=>{if(SR&&!inApp&&db.settings.voice!=='kbd')startVoice();else showType('',$('#bulkText').value)});
 $('#pvAdd').addEventListener('click',()=>{const l=parsed.filter(x=>x.text.trim());$('#voiceSheet').classList.remove('open');if(l.length)setTimeout(()=>addTasks(l),180)});
 
 /* ---------- categories ---------- */
