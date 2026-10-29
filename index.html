@@ -89,8 +89,12 @@ svg{display:block}
 .stage-wrap::after{transform:translate(3.5px,4px) rotate(.45deg);opacity:.85}
 .stage{position:absolute;inset:0;z-index:1;perspective:2400px;touch-action:pan-y}
 .stage.dragging{user-select:none;-webkit-user-select:none}
-.leaf{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:left center}
-.face{position:absolute;inset:0;border-radius:var(--r);background:var(--paper);box-shadow:var(--shadow);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.leaf{position:absolute;inset:0;transform-origin:left center}
+.stage.flip3d .leaf{transform-style:preserve-3d}
+.face{position:absolute;inset:0;border-radius:var(--r);background:var(--paper);box-shadow:var(--shadow);overflow:hidden}
+.stage.flip3d .face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{display:none}
+.stage.flip3d .face.back{display:block}
 .face::after{content:"";position:absolute;inset:0 auto 0 0;width:16px;background:linear-gradient(90deg,rgba(80,60,30,.06),transparent);pointer-events:none}
 .face.back{transform:rotateY(180deg);background:var(--paper2)}
 .face.back::before{content:"";position:absolute;inset:26px;border-radius:12px;background:repeating-linear-gradient(180deg,transparent 0 33px,var(--line) 33px 34px);opacity:.7}
@@ -179,16 +183,15 @@ svg{display:block}
 .zz text{animation:zz 2.8s ease-in-out infinite}
 .zz text:nth-child(2){animation-delay:.6s}
 
-.page-scroll{display:flex;flex-direction:column}
-.page-scroll>*{flex:none}
-.pg-foot{display:flex;justify-content:center;gap:8px;margin-top:auto;padding-top:26px}
+.page-scroll{-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.pg-foot{display:flex;justify-content:center;gap:8px;padding-top:26px}
 .ghost{padding:8px 14px;border-radius:99px;font-size:13px;color:var(--ink2);background:var(--paper2);transition:transform .2s,background .2s}
 .ghost:active{transform:scale(.95)}
 .pg-num{text-align:center;font-family:var(--serif);font-size:12px;color:var(--ink3);margin-top:16px;letter-spacing:.25em}
 
 /* composer */
 .composer{display:flex;align-items:center;gap:10px;padding:14px 16px calc(14px + env(safe-area-inset-bottom))}
-.input-wrap{flex:1;display:flex;align-items:center;height:52px;padding:0 6px 0 18px;border-radius:26px;background:var(--paper);box-shadow:var(--shadow);transition:box-shadow .25s}
+.input-wrap{flex:1;min-width:0;display:flex;align-items:center;height:52px;padding:0 6px 0 18px;border-radius:26px;background:var(--paper);box-shadow:var(--shadow);transition:box-shadow .25s}
 .input-wrap:focus-within{box-shadow:0 0 0 3px rgba(94,159,86,.22),var(--shadow)}
 #newTask{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:16px}
 #newTask::placeholder{color:var(--ink3)}
@@ -786,6 +789,7 @@ const easeOut=k=>1-Math.pow(1-k,3);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function makeFlip(target,dir){
   const old=curLeaf(),nw=buildLeaf(target),eff=db.settings.effect;
+  stage.classList.add('flip3d');
   if(dir>0){stage.insertBefore(nw,old);nw.classList.add('under');}
   else{stage.appendChild(nw);}
   const mover=dir>0?old:nw,under=dir>0?nw:old;
@@ -821,7 +825,7 @@ function runFlip(f,to,dur,ez=ease){
   const done=()=>{
     if(to===1){f.old.remove();cleanLeaf(f.nw);f.nw.classList.add('cur');cur=f.target;}
     else{f.nw.remove();cleanLeaf(f.old);f.old.classList.add('cur');}
-    flipping=false;flipObj=null;renderWeek(cur);
+    flipping=false;flipObj=null;stage.classList.remove('flip3d');renderWeek(cur);
   };
   requestAnimationFrame(step);
 }
@@ -980,7 +984,7 @@ function weekdayDate(pre,ch){
   let diff=idx-tdow;if(diff<0&&!/这|本/.test(pre))diff+=7;return addDays(today,diff);
 }
 function clean(seg){
-  seg=seg.replace(/^(我们?|咱们?)?(今天|今日|明天)?(要做的|要干的|要办的|的任务|的待办|的安排|任务|待办|安排)(事情?|事儿)?(有|是|就是|包括)?[：: ]*/,'');
+  seg=seg.replace(/^(我们?|咱们?)?(今天|今日|明天)?(要做的|要干的|要办的|的任务|的待办|的安排|任务|待办|安排)(事情?|事儿)?(有|是|就是|包括|[：:])[：: ]*/,'');
   for(;;){const n=seg.replace(/^(我们?|咱们?|还得|还要|还需要|需要|必须|记得|一定要|要|得|先|再|就是|就)/,'').trim();if(n===seg)break;seg=n}
   return seg.replace(/(吧|了|啊|呀|哦|嘛|呢)+$/,'').replace(/^[，,、:：\s]+|[，,、\s]+$/g,'').trim();
 }
