@@ -37,8 +37,9 @@
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);color-scheme:dark}
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
+html,body{margin:0;height:100%;overflow:hidden}
 html{background-color:var(--bg1)}
+body{position:fixed;inset:0;width:100%}
 body{font-family:var(--sans);color:var(--ink);background-color:var(--bg1);background-image:linear-gradient(180deg,var(--bg1),var(--bg2));overflow:hidden;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 input,textarea{font:inherit;color:inherit}
@@ -1188,11 +1189,22 @@ $$('.seg[data-set]').forEach(s=>s.addEventListener('click',e=>{const b=e.target.
 $$('[data-sw]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.sw;db.settings[k]=!db.settings[k];save();syncSettings();
   if(k==='remind'&&db.settings.remind)askNotify(true);
   if(k==='sound'&&db.settings.sound)sfx('tick')}));
+function setBar(c){
+  // iOS caches the status-bar tint; swapping in a fresh <meta> forces it to re-read the colour
+  const old=$('meta[name=theme-color]'),m=document.createElement('meta');m.name='theme-color';m.content=c;
+  if(old)old.remove();document.head.appendChild(m);
+  document.documentElement.style.backgroundColor=c;
+}
+function resetTop(){try{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0}catch(e){}applyTheme()}
+['pageshow','focus','orientationchange'].forEach(ev=>addEventListener(ev,()=>setTimeout(resetTop,60)));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(resetTop,60)});
+document.addEventListener('transitionend',e=>{if(e.target.classList&&e.target.classList.contains('sheet')&&!e.target.classList.contains('open'))resetTop()});
+document.addEventListener('focusout',e=>{if(e.target.matches&&e.target.matches('input,textarea'))setTimeout(resetTop,250)});
 function applyTheme(){
   const t=db.settings.theme,r=document.documentElement;
   if(t==='auto')r.removeAttribute('data-theme');else r.dataset.theme=t;
   const dark=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
-  $('meta[name=theme-color]').content=dark?'#171B16':'#EEF4E7';
+  setBar(dark?'#171B16':'#EEF4E7');
 }
 applyTheme();matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change',applyTheme);
 
